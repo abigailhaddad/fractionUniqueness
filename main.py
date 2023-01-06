@@ -4,7 +4,7 @@
 """
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import matplotlib.ticker as mtick
 
 def genDFOfNumeratorsAndDenominators(max_denominator):
     # we exclude 0s from the denominator; we add 1 to be inclusive of the max_denominator value
@@ -75,11 +75,14 @@ def showGraph():
     x=dataForGraph.index
     for col in dataForGraph.columns:
         plt.step(x, y=dataForGraph[col], label =col, alpha=.8)
-    plt.legend()
+    plt.legend(title="Max Denominator")
+    plt.title("Percent of Unique Fractions by Total Possible Denominator, Number of Digits in Percent")
+    plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
+    plt.xlabel("Number of digits given in percentage")
+    plt.ylabel("Perecent of Unique Fractions")
     plt.show()
     
 df=genDFOfNumeratorsAndDenominators(1000)
-df_with_percentages=genPercents(df,10)
+df=genPercents(df,7)
 testValues=testValue(df, 3, 7)
 showGraph()
-
