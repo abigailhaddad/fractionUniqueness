@@ -12,7 +12,7 @@ def genDFOfNumeratorsAndDenominators(max_denominator):
                       for y in range(1, max_denominator + 1) if y >= x])
    df.columns=["Numerator", "Denominator"]
    return(df)
-   
+
 def genPercents(df, max_digits):
     # this generates rounded percentages varying by degree of rounding
     df['Percent']=df['Numerator']/df['Denominator']
@@ -32,23 +32,32 @@ def testValue(df, numerator, denominator):
       rowsForAppend=[]
       row=df.loc[(df['Numerator']==numerator) & (df['Denominator']==denominator)]
       for digits in range(1, max_digits+1):
-         var_name=f"percent_rounded_{digits}"
-         percent_by_rounding=row[var_name].iloc[0]
-         all_options=df.loc[df[var_name]==percent_by_rounding]
-         all_options_values = [
-             f"{str(i[0])}/{str(i[1])}"
-             for i in all_options[['Numerator', 'Denominator']].values
-         ]
-         print(f"There are {len(all_options)} possible numerator/denominator combinations for that value at {digits} digits of rounding for a maximum possible denominator of {max_denominator}.")
-         rowsForAppend.append([digits, len(all_options), all_options_values])
+          rowsForAppend.append(returnRowFprPossibleOptions(row, digits, max_denominator))
       dfOutcomes=pd.DataFrame(rowsForAppend)
       dfOutcomes.columns=["Digits", "Number of Possibilities", "List of Possibilities"]
       dfOutcomes.name = f'Percent analogues of {str(numerator)}/{str(denominator)}'
       dfOutcomes=dfOutcomes.set_index("Digits")
       return(dfOutcomes)
-            
+
+def returnRowFprPossibleOptions(row, digits, max_denominator):
+    var_name=f"percent_rounded_{digits}"
+    percent_by_rounding=row[var_name].iloc[0]
+    all_options=df.loc[df[var_name]==percent_by_rounding]
+    all_options_values =  [f"{str(i[0])}/{str(i[1])}" for i in all_options[['Numerator', 'Denominator']].values]
+    print(f"There are {len(all_options)} possible numerator/denominator combinations for that value at {digits} digits of rounding for a maximum possible denominator of {max_denominator}.")
+    return([digits, len(all_options), all_options_values])
+
 def deriveMaxDigits(df):
-   return max(int(i[-1]) for i in df.columns if i[-1].isdigit())     
+   return max(int(i[-1]) for i in df.columns if i[-1].isdigit())
+
+def generatePercentIdentifiedPercent(df, digits, denominator_limit, var_name):
+    subset=df.loc[df['Denominator']<=denominator_limit]
+    values=subset[var_name].value_counts().value_counts()
+    try:
+        identified_perfect=values.loc[1]/len(subset)
+    except:
+        identified_perfect=0
+    return([digits, denominator_limit, identified_perfect])
 
 def generateGraphofUniqueIdentifiers(df):
    # this generates a table showing the proportion of unique values by possible numerator/denominator pairs, given level of rounding and the size of the possible denominator
@@ -59,13 +68,7 @@ def generateGraphofUniqueIdentifiers(df):
    for digits in range(1, max_digits):
        var_name=f"percent_rounded_{digits}"
        for denominator_limit in denominator_limits:
-           subset=df.loc[df['Denominator']<=denominator_limit]
-           values=subset[var_name].value_counts().value_counts()
-           try:
-               identified_perfect=values.loc[1]/len(subset)
-           except:
-               identified_perfect=0
-           listofAnswers.append([digits, denominator_limit, identified_perfect])
+           listofAnswers.append(generatePercentIdentifiedPercent(df, digits, denominator_limit, var_name))
    answers=pd.DataFrame(listofAnswers)
    answers.columns=['Rounding Digits', 'Denominator Maximum', 'Percentage Identified Perfectly']
    return pd.pivot(
@@ -87,7 +90,7 @@ def showGraph():
     plt.xlabel("Number of digits given in percentage")
     plt.ylabel("Perecent of Unique Fractions")
     plt.show()
-    
+
 df=genDFOfNumeratorsAndDenominators(1000)
 df=genPercents(df,7)
 testValues=testValue(df, 3, 7)
