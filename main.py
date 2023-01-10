@@ -29,10 +29,11 @@ def testValue(df, numerator, denominator):
       print("Your inputs will not work on this.")
    else:
       max_denominator=df['Denominator'].max()
-      rowsForAppend=[]
       row=df.loc[(df['Numerator']==numerator) & (df['Denominator']==denominator)]
-      for digits in range(1, max_digits+1):
-          rowsForAppend.append(returnRowFprPossibleOptions(row, digits, max_denominator))
+      rowsForAppend = [
+          returnRowFprPossibleOptions(row, digits, max_denominator)
+          for digits in range(1, max_digits + 1)
+      ]
       dfOutcomes=pd.DataFrame(rowsForAppend)
       dfOutcomes.columns=["Digits", "Number of Possibilities", "List of Possibilities"]
       dfOutcomes.name = f'Percent analogues of {str(numerator)}/{str(denominator)}'
@@ -66,9 +67,11 @@ def generateGraphofUniqueIdentifiers(df):
    max_denominator=df['Denominator'].max()
    denominator_limits=[i for i in [100, 200, 500, 1000, 2000, 5000, 10000] if i<=max_denominator]
    for digits in range(1, max_digits):
-       var_name=f"percent_rounded_{digits}"
-       for denominator_limit in denominator_limits:
-           listofAnswers.append(generatePercentIdentifiedPercent(df, digits, denominator_limit, var_name))
+      var_name=f"percent_rounded_{digits}"
+      listofAnswers.extend(
+          generatePercentIdentifiedPercent(df, digits, denominator_limit,
+                                           var_name)
+          for denominator_limit in denominator_limits)
    answers=pd.DataFrame(listofAnswers)
    answers.columns=['Rounding Digits', 'Denominator Maximum', 'Percentage Identified Perfectly']
    return pd.pivot(
