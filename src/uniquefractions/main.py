@@ -38,14 +38,15 @@ def genPercents(df, max_digits):
     df_with_rounded_digits=df
     return(df_with_rounded_digits)
 
-def testValue(df, numerator, denominator):
+def testValue(numerator, denominator, max_digits, max_denominator):
     """this lets you input a numerator and denominator and tests to see how many possible other values there
-    could be for various degrees of rounding, using the max_denominator in the df
+    could be for various degrees of rounding, using a max_denominator
     
     Args:
-        df: pandas df with all combinations of numerators and denominators
         numerator: numerator of fraction to test
         denominator: denominator of fraction to test
+        max_digits: maxium number of digits to include -- more digits mean less rounding
+        max_denominator: maximum possible denominator
         
     Returns:
         dfOutcomes: df showing the number and list of possible fraction analogues 
@@ -54,7 +55,8 @@ def testValue(df, numerator, denominator):
         returns "Your inputs will not work on this." if you inputs values that don't work
           
    """
-    max_digits=deriveMaxDigits(df)
+    df=genDFOfNumeratorsAndDenominators(max_denominator)
+    df=genPercents(df,max_digits)
     if numerator>denominator or denominator==0 or denominator>df['Denominator'].max():
         return("Your inputs will not work on this.")
     else:
@@ -179,6 +181,6 @@ def showGraph(max_denominator=1000, max_digits=7):
     plt.title("Percent of Unique Fractions by Total Possible Denominator, Number of Digits in Percent")
     plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
     plt.xlabel("Number of digits given in percentage")
-    plt.ylabel("Perecent of Unique Fractions")
+    plt.ylabel("Percent of Unique Fractions")
     return(plt)
 
