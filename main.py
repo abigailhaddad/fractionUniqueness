@@ -61,7 +61,7 @@ def testValue(df, numerator, denominator):
       max_denominator=df['Denominator'].max()
       row=df.loc[(df['Numerator']==numerator) & (df['Denominator']==denominator)]
       rowsForAppend = [
-          returnRowForPossibleOptions(row, digits, max_denominator)
+          returnRowForPossibleOptions(df, row, digits, max_denominator)
           for digits in range(1, max_digits + 1)
       ]
       dfOutcomes=pd.DataFrame(rowsForAppend)
@@ -70,7 +70,7 @@ def testValue(df, numerator, denominator):
       dfOutcomes=dfOutcomes.set_index("Digits")
       return(dfOutcomes)
 
-def returnRowForPossibleOptions(row, digits, max_denominator):
+def returnRowForPossibleOptions(df, row, digits, max_denominator):
     """this takes a row of a pandas df and returns all possible fractions associated with that row
     
     Args:
@@ -82,13 +82,13 @@ def returnRowForPossibleOptions(row, digits, max_denominator):
         digits: the number of digits/degree of rounding for the calculation
         len(all_options): count of all possible fraction analogues
         all_options_values: list of all possile fraction analogues
-          
+        
+
    """
     var_name=f"percent_rounded_{digits}"
     percent_by_rounding=row[var_name].iloc[0]
     all_options=df.loc[df[var_name]==percent_by_rounding]
     all_options_values =  [f"{str(i[0])}/{str(i[1])}" for i in all_options[['Numerator', 'Denominator']].values]
-    print(f"There are {len(all_options)} possible numerator/denominator combinations for that value at {digits} digits of rounding for a maximum possible denominator of {max_denominator}.")
     return([digits, len(all_options), all_options_values])
 
 def deriveMaxDigits(df):
@@ -146,7 +146,7 @@ def generateGraphofUniqueIdentifiers(df):
     max_digits=deriveMaxDigits(df)
     max_denominator=df['Denominator'].max()
     denominator_limits=[i for i in [100, 200, 500, 1000, 2000, 5000, 10000] if i<=max_denominator]
-    for digits in range(1, max_digits):
+    for digits in range(1, max_digits+1):
         var_name=f"percent_rounded_{digits}"
         listofAnswers.extend(
             generatePercentIdentifiedPercent(df, digits, denominator_limit,
@@ -158,13 +158,19 @@ def generateGraphofUniqueIdentifiers(df):
         answers, index='Rounding Digits', columns='Denominator Maximum', values='Percentage Identified Perfectly')
     return(pivoted)
 
-def showGraph():
+def showGraph(max_denominator=1000, max_digits=7):
     """ this produces the graph showing the relationship between possible denominator size, number of digits in percentage, and proportion of uniques
+    
+    Args:
+        max_denominator (optional - default is 1000): maximum possible denominator
+        max_digits (optional - default is 7): maxium number of digits to include -- more digits mean less rounding
     
     Returns:
         plt: pyplot of the relationship between possible denominator, number of digits, and percent of uniquely identifiable fractions
           
     """
+    df=genDFOfNumeratorsAndDenominators(max_denominator)
+    df=genPercents(df,max_digits)
     dataForGraph=generateGraphofUniqueIdentifiers(df)
     x=dataForGraph.index
     for col in dataForGraph.columns:
@@ -176,7 +182,3 @@ def showGraph():
     plt.ylabel("Perecent of Unique Fractions")
     return(plt)
 
-df=genDFOfNumeratorsAndDenominators(1000)
-df=genPercents(df,7)
-testValues=testValue(df, 3, 7)
-showGraph()
