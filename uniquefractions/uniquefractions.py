@@ -185,10 +185,6 @@ def showDenominatorRoundingGraph(max_denominator=1000, max_digits=7):
     return(plt)
 
 
-df=genDFOfNumeratorsAndDenominators(100)
-df=genPercents(df,4)
-
-
 def testDecimalValue(decimal, digits, max_denominator=None, true_denominator=None):
     """this lets you input a decimal value under 1, the number of digits it's rounded to,
     and either a max_denominator or the true_denominator, and it returns a list of possible
