@@ -14,8 +14,8 @@ def genDFOfNumeratorsAndDenominators(max_denominator, min_denominator=0):
         df: pandas df with all combinations of numerators and denominators
           
    """
-    df = pd.DataFrame([[x, y] for x in range(min_denominator, max_denominator + 1)
-                      for y in range(1, max_denominator + 1) if y >= x])
+    df = pd.DataFrame([[x, y] for x in range(0, max_denominator + 1)
+                      for y in range(min_denominator, max_denominator + 1) if y >= x])
     df.columns=["Numerator", "Denominator"]
     return(df)
 
@@ -38,9 +38,9 @@ def genPercents(df, max_digits):
     df_with_rounded_digits=df
     return(df_with_rounded_digits)
 
-def testValue(numerator, denominator, max_digits, max_denominator):
+def testFractionValue(numerator, denominator, max_digits, max_denominator):
     """this lets you input a numerator and denominator and tests to see how many possible other values there
-    could be for various degrees of rounding, using a max_denominator
+    could be for various degrees of rounding, using a max_denominator, returning the possible values
     
     Args:
         numerator: numerator of fraction to test
@@ -160,7 +160,7 @@ def generateGraphofUniqueIdentifiers(df):
         answers, index='Rounding Digits', columns='Denominator Maximum', values='Percentage Identified Perfectly')
     return(pivoted)
 
-def showGraph(max_denominator=1000, max_digits=7):
+def showDenominatorRoundingGraph(max_denominator=1000, max_digits=7):
     """ this produces the graph showing the relationship between possible denominator size, number of digits in percentage, and proportion of uniques
     
     Args:
@@ -184,3 +184,35 @@ def showGraph(max_denominator=1000, max_digits=7):
     plt.ylabel("Percent of Unique Fractions")
     return(plt)
 
+
+df=genDFOfNumeratorsAndDenominators(100)
+df=genPercents(df,4)
+
+
+def testDecimalValue(decimal, digits, max_denominator=None, true_denominator=None):
+    """this lets you input a decimal value under 1, the number of digits it's rounded to,
+    and either a max_denominator or the true_denominator, and it returns a list of possible
+    fraction values for it
+    
+    Args:
+        decimal: value of decimal to test, like .5
+        digits: number of digits that are included -- more digits mean less rounding
+        max_denominator (optional): maximum possible denominator
+        true_denominator (optionl): actual denominator
+        
+    Returns:
+        possibleFractionValues: series with the count of possible fraction values for the decimal
+        and the actual values
+
+          
+   """
+    if max_denominator:
+        df=genDFOfNumeratorsAndDenominators(max_denominator)
+    elif true_denominator:
+        df=genDFOfNumeratorsAndDenominators(true_denominator, true_denominator)
+    df=genPercents(df,digits)
+    var_name=f"percent_rounded_{digits}"
+    subset=df.loc[df[var_name]==decimal]
+    all_options_values =  [f"{str(i[0])}/{str(i[1])}" for i in subset[['Numerator', 'Denominator']].values]
+    possibleFractionValues=pd.Series([len(all_options_values), all_options_values])
+    return(possibleFractionValues)
