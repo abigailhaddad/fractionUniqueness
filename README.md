@@ -9,10 +9,12 @@ showDenominatorRoundingGraph(max_denominator=1000, max_digits=7):
     
     Args:
         max_denominator (optional - default is 1000): maximum possible denominator
-        max_digits (optional - default is 7): maxium number of digits to include -- more digits mean less rounding
+        max_digits (optional - default is 7): maxium number of digits to include -- 
+	more digits mean less rounding
     
     Returns:
-        plt: pyplot of the relationship between possible denominator, number of digits, and percent of uniquely identifiable fractions
+        plt: pyplot of the relationship between possible denominator, number of digits, 
+	and percent of uniquely identifiable fractions
           
     """
 
