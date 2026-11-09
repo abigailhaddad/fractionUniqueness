@@ -18,6 +18,12 @@ class testgenDFOfNumeratorsAndDenominators(unittest.TestCase):
         df=uniquefractions.genDFOfNumeratorsAndDenominators(max_denominator, min_denominator)
         self.assertEqual(df['Denominator'].mean(), 33.68421052631579)
         
+class testZeroDenominator(unittest.TestCase):
+    def testNoZeroDenominatorByDefault(self):
+        df=uniquefractions.genDFOfNumeratorsAndDenominators(10)
+        self.assertEqual(df['Denominator'].min(), 1)
+        self.assertEqual(len(df), 65)
+
 class testGenPercents(unittest.TestCase):
     def testRangeColumn(self):
         min_denominator=5
