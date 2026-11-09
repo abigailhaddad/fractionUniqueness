@@ -15,7 +15,7 @@ def genDFOfNumeratorsAndDenominators(max_denominator, min_denominator=0):
           
    """
     df = pd.DataFrame([[x, y] for x in range(0, max_denominator + 1)
-                      for y in range(min_denominator, max_denominator + 1) if y >= x])
+                      for y in range(max(min_denominator, 1), max_denominator + 1) if y >= x])
     df.columns=["Numerator", "Denominator"]
     return(df)
 
